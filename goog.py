@@ -8,7 +8,7 @@ import urllib3
 import BeautifulSoup
 import re
 from pandocfilters import *
-import json
+import simplejson
 import socket
 import drunkuncle
 
@@ -16,14 +16,17 @@ TCP_IP='127.0.0.1'
 TCP_PORT=6969
 BUFFER_SIZE=1024
 
+global fin
 fin=[]
 rel=0
 sent=0
 text_sentiment=0
 aggregate_text=""
+parser=drunkuncle.DrunkUncle()
+keywords=[]
 
 
-wiki_base_url = "http://en.wikipedia.org/wiki/Special:Search/"
+wiki_base_url = "http://en.m.wikipedia.org/wiki/Special:Search/"
 
 def getgoogleurl(search,siteurl=False):
     if siteurl==False:
@@ -66,13 +69,17 @@ def getgooglelinks(search,siteurl=False):
     return links
 
 def fil(key, value, format, meta):
+    global fin
     if key == 'Para':
         string=stringify(Para(value))
-        data = parser.getSentiment(text)
+        #print string
+        data = parser.getSentiment(string)
         rel = relevance(keywords, aggregate_text, string)
-        fin.append( (-float(data)*text_sentiment*rel, string) )
+        fin.append( (-float(data)+text_sentiment+rel, string) )
 
 def relevant_passage(text, parser): 
+    global fin
+    fin=[]
     text_sentiment= parser.getSentiment(text)
     keywords = parser.keyExtract(text)
     search = " ".join([k for k in keywords.keys()[:5]])
@@ -88,23 +95,29 @@ def relevant_passage(text, parser):
         aggregate_text += soup.p.text
 
     for link in getgooglelinks(search):
-        print link
-        #rel = relevance(keywords, aggregate_text, sentence)
-        #sent = parser.getSentiment(sentence)
-        # sent*text_sentiment has large magnitude if they are far apart
-        #   and is positive only if they have the same sign. Thus we take the negation.
-        #fin.append( (-sent*text_sentiment*rel, sentence) )
         response = urllib2.urlopen(link)
         html=response.read()
-        p=Popen(['pandoc','-f','html','-t','json'],stdin=PIPE)
-        tree=json.loads(p.communicate(html))
+        p=Popen(['pandoc','-f','html','-t','json'],stdin=PIPE,stdout=PIPE)
+        string=p.communicate(unidecode( html ))[0]
+        tree=simplejson.loads(str(string))
+        #print tree
         walk(tree,fil,"",tree[0]['unMeta'])
-    return sorted(fin[0][1])
+    #print fin
+    print fin
+    return max(fin,key= lambda x:x[0])[1]
+    #print sorted(fin)
+    #return sorted(fin)[0]
 
 def relevance(keywords, aggregate, text):
-    text = re.sub("(\s+|\\\\)", " ", text, flags=re.MULTILINE | re.S) # Takes care of whitespaces.
-    print(text)
-    pats = [re.compile(k)  for k in text.split(' ') if k != ""]
+    text = re.sub("(\s+|\\\\)", " ", text, flags=re.MULTILINE | re.S)
+    #print(text)
+    pats = [];
+    for k in text.split(' '):
+            if k != "":
+                    try:
+                            pats+=[re.compile(k)]
+                    except:
+                            pass
     wc = 0
     for word in keywords:
         # see if it's in the text

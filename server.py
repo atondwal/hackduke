@@ -34,8 +34,11 @@ def twist():
     if match is not None:
         name = match.group(1)
         from_email = match.group(2)
+    else:
+        name="Website"
+        from_email="Website"
     #['from', 'attachments', 'headers', 'text', 'envelope', 'to', 'html', 'sender_ip', 'subject', 'dkim', 'SPF', 'charsets']
-    body = request.form['text']
+    body = "".join(request.form['text'])
     print("Email has body: %s" % body)
     (mp3file, body) = parse(body)
     print("We return: %s"%body)
@@ -49,7 +52,7 @@ def twist():
            <h1> ''' + body + '''</h1>
            <embed height="50" width="100" src="'''+ mp3file +'''">
             <form action="/twist" method="POST">
-                <input type="hidden" name="from">Website</input>
+                <input type="hidden" name="from" value="Website"></input>
                 <input type="text" name="text" value="Well, what do you think?"/>
                 <input type="submit" value="Say that one more time, I dare you!"/>
             </form>
@@ -98,14 +101,16 @@ def twilio():
 app.config['parser'] = drunkuncle.DrunkUncle()
 
 def parse(text):
+    text=''.join(text)
     text = goog.relevant_passage(text, app.config['parser'])
     filename = text2mp3(uuid.uuid1().hex + ".mp3", text)
     return (filename, text)
 
 def text2mp3(filename, text):
+    text=''.join(text)
     pipe = subprocess.Popen(['./text2mp3.zsh',filename],stdin=subprocess.PIPE)
     print("Turning text to mp3:\n%s"%text)
-    pipe.communicate(text)
+    #pipe.communicate(text)
     return filename
 
 if __name__ == "__main__":

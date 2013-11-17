@@ -72,7 +72,7 @@ class DrunkUncle:
 		return trainingData
 
 	def getSentiment(self, text):
-		text = str(text)
+                #text = str(text)
 		textKeys = text.split(" ")
 		words = dict(map(lambda word: (word, True), textKeys))
 		result = self.classifier.prob_classify(words)
