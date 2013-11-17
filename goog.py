@@ -95,15 +95,18 @@ def relevant_passage(text, parser):
         aggregate_text += soup.p.text
 
     for link in getgooglelinks(search):
-        response = urllib2.urlopen(link)
-        html=response.read()
-        p=Popen(['pandoc','-f','html','-t','json'],stdin=PIPE,stdout=PIPE)
-        string=p.communicate(unidecode( html ))[0]
-        tree=simplejson.loads(str(string))
-        #print tree
-        walk(tree,fil,"",tree[0]['unMeta'])
+        try:
+          response = urllib2.urlopen(link)
+          html=response.read()
+          p=Popen(['pandoc','-f','html','-t','json'],stdin=PIPE,stdout=PIPE)
+          string=p.communicate(unidecode( html ))[0]
+          tree=simplejson.loads(str(string))
+          #print tree
+          walk(tree,fil,"",tree[0]['unMeta'])
+        except:
+          pass
     #print fin
-    print fin
+    #print fin
     return max(fin,key= lambda x:x[0])[1]
     #print sorted(fin)
     #return sorted(fin)[0]

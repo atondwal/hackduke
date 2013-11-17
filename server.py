@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect,url_for
 import twilio.twiml as twiml
 from twilio.rest import TwilioRestClient
 import sendgrid
@@ -6,7 +6,7 @@ import drunkuncle
 import goog
 import re, uuid, os, sys, subprocess
 
-app = Flask(__name__)
+app = Flask(__name__,static_folder='static', static_url_path='/static')
 DOMAIN_NAME = "twist@twist.bymail.in"
 
 @app.route("/", methods=['GET', 'POST'])
@@ -41,6 +41,9 @@ def twist():
     body = "".join(request.form['text'])
     print("Email has body: %s" % body)
     (mp3file, body) = parse(body)
+    insult=subprocess.check_output('./insult.sh')
+    #text2mp3(mp3file,insult)
+    #text2mp3(uuid.uuid1().hex + ".mp3", insult)
     print("We return: %s"%body)
     if from_email != "Website":
         send_email(from_email, name, "From HackDuke with love...", body, mp3file)
@@ -49,8 +52,8 @@ def twist():
         page = '''
            <html>
            <body>
-           <h1> ''' + body + '''</h1>
-           <embed height="50" width="100" src="'''+ mp3file +'''">
+           <h1> ''' + insult+ '''</h1>
+           '''  +body+'''
             <form action="/twist" method="POST">
                 <input type="hidden" name="from" value="Website"></input>
                 <input type="text" name="text" value="Well, what do you think?"/>
@@ -103,12 +106,12 @@ app.config['parser'] = drunkuncle.DrunkUncle()
 def parse(text):
     text=''.join(text)
     text = goog.relevant_passage(text, app.config['parser'])
-    filename = text2mp3(uuid.uuid1().hex + ".mp3", text)
+    filename = "" #text2mp3(uuid.uuid1().hex + ".mp3", text)
     return (filename, text)
 
 def text2mp3(filename, text):
     text=''.join(text)
-    pipe = subprocess.Popen(['./text2mp3.zsh',filename],stdin=subprocess.PIPE)
+    pipe = subprocess.Popen(['./text2mp3.zsh',"static/"+filename],stdin=subprocess.PIPE)
     print("Turning text to mp3:\n%s"%text)
     #pipe.communicate(text)
     return filename
