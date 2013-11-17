@@ -13,16 +13,11 @@ class DrunkUncle:
 		self.key_tagger.initialize()
 		self.key_extract = extract.TermExtractor(self.key_tagger)
 		self.key_extract.filter = extract.permissiveFilter
-		#trainers = self.movieTrain()
-		#trainers += self.afinnTrain()
-		#trainers += self.congressTrain()
+		trainers = self.movieTrain()
+		trainers += self.afinnTrain()
+		trainers += self.congressTrain()
 		#print trainers
-		#self.classifier = NaiveBayesClassifier.train(trainers)
-                #trainers = self.movieTrain()
-                #trainers += self.afinnTrain()
-                #trainers += self.congressTrain()
-		#print trainers
-                #self.classifier = NaiveBayesClassifier.train(trainers)
+		self.classifier = NaiveBayesClassifier.train(trainers)
 
 	def keyExtract(self, text):
 		text = str(text)
@@ -80,11 +75,6 @@ class DrunkUncle:
 		text = str(text)
 		textKeys = text.split(" ")
 		words = dict(map(lambda word: (word, True), textKeys))
-		#score = 0
-		#for word in textKeys:
-		#	if word in self.classifier:
-		#		score += self.classifier[word]
-		#return score
 		result = self.classifier.prob_classify(words)
 		return (result.prob("pos"), result.prob("neg"))
 
