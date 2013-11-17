@@ -3,6 +3,7 @@ import twilio.twiml as twiml
 from twilio.rest import TwilioRestClient
 import sendgrid
 import drunkuncle
+import goog
 import re, uuid, os, sys, subprocess
 
 app = Flask(__name__)
@@ -69,7 +70,7 @@ def twilio():
 app.config['parser'] = drunkuncle.DrunkUncle()
 
 def parse(text):
-    parsed = app.config['parser'].getSentiment(text)
+    text = goog.relevant_passage(text, app.config['parser'])
     filename = text2mp3(uuid.uuid1().hex + ".mp3", text)
     return (filename, text)
 
