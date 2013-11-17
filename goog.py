@@ -47,7 +47,7 @@ for link in getgooglelinks("this is a query"):
         print link
         response = urllib2.urlopen(link)
         html=response.read()
-        p=Popen(['pandoc','-F','filter.py'],stdin=PIPE)
+        p=Popen(['pandoc','--filter','./filter.py','-f','html','-t','markdown'],stdin=PIPE)
         p.communicate(html)
 
 
