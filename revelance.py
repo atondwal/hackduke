@@ -16,7 +16,7 @@ def wiki_count(word, url):
 	# scour the page, aaarrrrgg
 	text = soup.p.text
 	index = text.find(index)
-	while index != -1:
+	while index != -1 && index+1 < len(text):
 		wc++
 		index = text.find(word, index+1)
 	return wc
@@ -26,8 +26,9 @@ def revelance(keywords, text):
 		# see if it's in the text
 		wc = 0
 		index = text.find(word)
-		while index != -1 && index+1 < len(text)
+		while index != -1 && index+1 < len(text):
 			wc++
 			index = text.find(word, index+1)
 		# check wikipedia	
 		wc += wiki_count(word, base_url + word)
+	return wc
