@@ -10,6 +10,7 @@ import re
 from pandocfilters import *
 import json
 import socket
+import drunkuncle
 
 TCP_IP='127.0.0.1'
 TCP_PORT=6969
@@ -67,18 +68,12 @@ def getgooglelinks(search,siteurl=False):
 def fil(key, value, format, meta):
     if key == 'Para':
         string=stringify(Para(value))
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((TCP_IP, TCP_PORT))
-        s.send(string)
-        data = s.recv(BUFFER_SIZE)
+        data = parser.getSentiment(text)
         rel = relevance(keywords, aggregate_text, string)
-        fin.append( (-int(data)*text_sentiment*rel, string) )
+        fin.append( (-float(data)*text_sentiment*rel, string) )
 
 def relevant_passage(text, parser): 
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((TCP_IP, TCP_PORT))
-    s.send(text)
-    text_sentiment= int( s.recv(BUFFER_SIZE) )
+    text_sentiment= parser.getSentiment(text)
     keywords = parser.keyExtract(text)
     search = " ".join([k for k in keywords.keys()[:5]])
     keywords = keywords.keys()[:10] #Only us the top 10 keywords
@@ -117,3 +112,6 @@ def relevance(keywords, aggregate, text):
     for i in pats:
         wc += 0.03 * len(i.findall(aggregate))
     return wc
+
+if __name__ == "__main__":
+        relevant_passage("Fermi Sucks",drunkuncle.DrunkUncle())
