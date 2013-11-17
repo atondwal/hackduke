@@ -34,14 +34,14 @@ public class SentimentServer {
 	
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
-		try (
-	            ServerSocket serverSocket = new ServerSocket(6969);
-	            Socket clientSocket = serverSocket.accept();
-	            PrintWriter out =
-	                new PrintWriter(clientSocket.getOutputStream(), true);
-	            BufferedReader in = new BufferedReader(
-	                new InputStreamReader(clientSocket.getInputStream()));
-	        ) {
+		ServerSocket serverSocket = new ServerSocket(6969);
+		Socket clientSocket = serverSocket.accept();
+		PrintWriter out =
+		    new PrintWriter(clientSocket.getOutputStream(), true);
+		BufferedReader in = new BufferedReader(
+		    new InputStreamReader(clientSocket.getInputStream()));
+		try
+	        {
 				Properties props = new Properties();
 				props.setProperty("annotators", "tokenize, ssplit, parse, sentiment");
 	         	StanfordCoreNLP analyzer = new StanfordCoreNLP(props);

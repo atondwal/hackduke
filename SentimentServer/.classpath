@@ -2,11 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
-	<classpathentry kind="lib" path="/home/wil/hackduke/dukehacks/stanford-corenlp-full-2013-11-12/stanford-corenlp-3.3.0-models.jar"/>
-	<classpathentry kind="lib" path="/home/wil/hackduke/dukehacks/stanford-corenlp-full-2013-11-12/jollyday.jar"/>
-	<classpathentry kind="lib" path="/home/wil/hackduke/dukehacks/stanford-corenlp-full-2013-11-12/xom.jar"/>
-	<classpathentry kind="lib" path="/home/wil/hackduke/dukehacks/stanford-corenlp-full-2013-11-12/ejml-0.23.jar"/>
-	<classpathentry kind="lib" path="/home/wil/hackduke/dukehacks/stanford-corenlp-full-2013-11-12/joda-time.jar"/>
-	<classpathentry kind="lib" path="/home/wil/hackduke/dukehacks/stanford-corenlp-full-2013-11-12/stanford-corenlp-3.3.0.jar"/>
+	<classpathentry kind="lib" path="/home/azureuser/dukehacks/stanford-corenlp-full-2013-11-12/stanford-corenlp-3.3.0-models.jar"/>
+	<classpathentry kind="lib" path="/home/azureuser/dukehacks/stanford-corenlp-full-2013-11-12/jollyday.jar"/>
+	<classpathentry kind="lib" path="/home/azureuser/dukehacks/stanford-corenlp-full-2013-11-12/xom.jar"/>
+	<classpathentry kind="lib" path="/home/azureuser/dukehacks/stanford-corenlp-full-2013-11-12/ejml-0.23.jar"/>
+	<classpathentry kind="lib" path="/home/azureuser/dukehacks/stanford-corenlp-full-2013-11-12/joda-time.jar"/>
+	<classpathentry kind="lib" path="/home/azureuser/dukehacks/stanford-corenlp-full-2013-11-12/stanford-corenlp-3.3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

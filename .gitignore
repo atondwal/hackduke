@@ -3,3 +3,5 @@ build
 build/**/*
 *.swp
 test.*
+stanford-corenlp-full-2013-11-12/**/*
+stanford-corenlp-full-2013-11-12/
