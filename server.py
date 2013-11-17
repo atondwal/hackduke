@@ -11,8 +11,19 @@ DOMAIN_NAME = "twist@twist.bymail.in"
 
 @app.route("/", methods=['GET', 'POST'])
 def index():
-	return "Hello world!"
-
+    page = '''
+           <html>
+           <body>
+           <h1> I'm not drunk, I'm just....shut up. </h1>
+            <form action="/twist" method="POST">
+                <input type="hidden" name="from" value="Website"/>
+                <input type="text" name="text" value="Well, what do you think?"/>
+                <input type="submit" value="Say that one more time, I dare you!"/>
+            </form>
+            </body>
+            </html>
+    '''
+    return page
 
 s = sendgrid.Sendgrid('username', 'password', secure=True)
 pat = re.compile("(.*)<(.*)>$")
@@ -20,15 +31,32 @@ pat = re.compile("(.*)<(.*)>$")
 @app.route("/twist", methods=['GET', 'POST'])
 def twist():
     match = pat.match(request.form['from'])
-    name = match.group(1)
-    from_email = match.group(2)
+    if match is not None:
+        name = match.group(1)
+        from_email = match.group(2)
     #['from', 'attachments', 'headers', 'text', 'envelope', 'to', 'html', 'sender_ip', 'subject', 'dkim', 'SPF', 'charsets']
     body = request.form['text']
     print("Email has body: %s" % body)
     (mp3file, body) = parse(body)
     print("We return: %s"%body)
-    send_email(from_email, name, "From HackDuke with love...", body, mp3file)
-    return ""
+    if from_email != "Website":
+        send_email(from_email, name, "From HackDuke with love...", body, mp3file)
+        return ""
+    else:
+        page = '''
+           <html>
+           <body>
+           <h1> ''' + body + '''</h1>
+           <embed height="50" width="100" src="'''+ mp3file +'''">
+            <form action="/twist" method="POST">
+                <input type="hidden" name="from">Website</input>
+                <input type="text" name="text" value="Well, what do you think?"/>
+                <input type="submit" value="Say that one more time, I dare you!"/>
+            </form>
+            </body>
+            </html>     
+            '''
+        return page
 
 
 def send_email(address, name, subject, message, attachment = None):
