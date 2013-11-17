@@ -13,11 +13,11 @@ class DrunkUncle:
 		self.key_tagger.initialize()
 		self.key_extract = extract.TermExtractor(self.key_tagger)
 		self.key_extract.filter = extract.permissiveFilter
-		trainers = self.movieTrain()
-		trainers += self.afinnTrain()
-		trainers += self.congressTrain()
+                #trainers = self.movieTrain()
+                #trainers += self.afinnTrain()
+                #trainers += self.congressTrain()
 		#print trainers
-		self.classifier = NaiveBayesClassifier.train(trainers)
+                #self.classifier = NaiveBayesClassifier.train(trainers)
 
 	def keyExtract(self, text):
 		text = str(text)

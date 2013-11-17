@@ -75,7 +75,10 @@ def fil(key, value, format, meta):
         fin.append( (-int(data)*text_sentiment*rel, string) )
 
 def relevant_passage(text, parser): 
-    text_sentiment = parser.getSentiment(text)
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((TCP_IP, TCP_PORT))
+    s.send(text)
+    text_sentiment= int( s.recv(BUFFER_SIZE) )
     keywords = parser.keyExtract(text)
     search = " ".join([k for k in keywords.keys()[:5]])
     keywords = keywords.keys()[:10] #Only us the top 10 keywords
