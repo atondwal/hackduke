@@ -7,6 +7,19 @@ from unidecode import unidecode
 import urllib3
 import BeautifulSoup
 import re
+from pandocfilters import *
+import json
+import socket
+
+TCP_IP='127.0.0.1'
+TCP_PORT=6969
+BUFFER_SIZE=1024
+
+fin=[]
+rel=0
+sent=0
+text_sentiment=0
+aggregate_text=""
 
 
 wiki_base_url = "http://en.wikipedia.org/wiki/Special:Search/"
@@ -51,12 +64,21 @@ def getgooglelinks(search,siteurl=False):
                     links.append(link)
     return links
 
+def fil(key, value, format, meta):
+    if key == 'Para':
+        string=stringify(Para(value))
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((TCP_IP, TCP_PORT))
+        s.send(string)
+        data = s.recv(BUFFER_SIZE)
+        rel = relevance(keywords, aggregate_text, string)
+        fin.append( (-int(data)*text_sentiment*rel, string) )
+
 def relevant_passage(text, parser): 
     text_sentiment = parser.getSentiment(text)
     keywords = parser.keyExtract(text)
     search = " ".join([k for k in keywords.keys()[:5]])
     keywords = keywords.keys()[:10] #Only us the top 10 keywords
-    fin = []
     print("We will search for '%s'"%search)
 
     # Gets the aggregate text of the relationship search
@@ -69,25 +91,16 @@ def relevant_passage(text, parser):
 
     for link in getgooglelinks(search):
         print link
-        connection = urllib2.urlopen(link)
-        encoding = connection.headers.getparam('charset')
-        html = connection.read()
-        # Replaces all links
-        html = re.sub("</?a(|.+?)>", " ", html)
-        filename = uuid.uuid1().hex + ".txt"
-        p=Popen(['pandoc','-f','html','-o',filename],stdin=PIPE)
-        p.communicate(unidecode(html))
-        FILE = open(filename, 'r')
-        for sentence in FILE.readlines():
-            if sentence.strip() == "":
-                continue
-            rel = relevance(keywords, aggregate_text, sentence)
-            sent = parser.getSentiment(sentence)
-            # sent*text_sentiment has large magnitude if they are far apart
-            #   and is positive only if they have the same sign. Thus we take the negation.
-            fin.append( (-sent*text_sentiment*rel, sentence) )
-
-        os.remove(filename)
+        #rel = relevance(keywords, aggregate_text, sentence)
+        #sent = parser.getSentiment(sentence)
+        # sent*text_sentiment has large magnitude if they are far apart
+        #   and is positive only if they have the same sign. Thus we take the negation.
+        #fin.append( (-sent*text_sentiment*rel, sentence) )
+        response = urllib2.urlopen(link)
+        html=response.read()
+        p=Popen(['pandoc','-f','html','-t','json'],stdin=PIPE)
+        tree=json.loads(p.communicate(html))
+        walk(tree,fil,"",tree[0]['unMeta'])
     return sorted(fin[0][1])
 
 def relevance(keywords, aggregate, text):
