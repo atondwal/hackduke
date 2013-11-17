@@ -13,8 +13,11 @@ class DrunkUncle:
 		self.key_tagger.initialize()
 		self.key_extract = extract.TermExtractor(self.key_tagger)
 		self.key_extract.filter = extract.permissiveFilter
-		#self. classifier = self.train()
-		self.classifier = self.afinnTrain()
+		trainers = self.movieTrain()
+		trainers += self.afinnTrain()
+		trainers += self.congressTrain()
+		#print trainers
+		self.classifier = NaiveBayesClassifier.train(trainers)
 
 	def keyExtract(self, text):
 		text = str(text)
@@ -27,7 +30,7 @@ class DrunkUncle:
 			print "Things broke"
 		return keywords
 
-	def train(self):
+	def movieTrain(self):
 		trainData = []
 		with open("pos.txt", "r") as pos:
 			for word in pos:
@@ -41,23 +44,42 @@ class DrunkUncle:
 				negFeatures = [dict([(word, True) for word in negWords]), 'neg']
 				trainData.append(negFeatures)
 
-		return NaiveBayesClassifier.train(trainData)
+		return trainData
 
 	def afinnTrain(self):
 		wordSet = collections.defaultdict(set)
+		trainData = []
 		with open("AFINN/AFINN-111.txt", "r") as afinn:
 			for line in afinn:
-				m = re.match(r"(?P<word>[a-zA-Z]+)\t(?P<score>[-]?[0-9]+)", line.rstrip())
+				m = re.match(r"(?P<word>[a-zA-Z-0-9]+)\t(?P<score>[-]?[0-9]+)", line.rstrip())
 				if m is not None:
 					wordSet[m.group("word")] = int(m.group("score"))
-		return wordSet
+					for i in range(abs(int(m.group("score")))):
+						trainData.append([dict([(m.group("word"), True)]), 'pos' if m.group("score") > 0 else 'neg'])
+
+		return trainData
+
+	def congressTrain(self):
+		trainingData = []
+		for dataFile in os.listdir("convote_v1.1/data_stage_three/training_set"):
+			with open('convote_v1.1/data_stage_three/training_set/' + dataFile, "r") as speech:
+				opinion = 'pos' if os.path.splitext(dataFile)[0][-1].lower() == 'y' else 'neg'
+				for word in speech:
+					words = re.findall(r"[\w']+|[.,!?;]", word.rstrip())
+					speechFeatures = [dict([(word, True) for word in words]), opinion]
+					trainingData.append(speechFeatures)
+
+		return trainingData
 
 	def getSentiment(self, text):
 		text = str(text)
 		textKeys = text.split(" ")
-		#words = dict(map(lambda word: (word, True), textKeys))
-		score = 0
-		for word in textKeys:
-			if word in self.classifier:
-				score += self.classifier[word]
-		return score
+		words = dict(map(lambda word: (word, True), textKeys))
+		#score = 0
+		#for word in textKeys:
+		#	if word in self.classifier:
+		#		score += self.classifier[word]
+		#return score
+		result = self.classifier.prob_classify(words)
+		return (result.prob("pos"), result.prob("neg"))
+
