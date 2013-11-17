@@ -35,13 +35,13 @@ class DrunkUncle:
 		with open("pos.txt", "r") as pos:
 			for word in pos:
 				posWords = re.findall(r"[\w']+|[.,!?;]", word.rstrip())
-				posFeatures = [dict([(word, True) for word in posWords]), 'pos']
+				posFeatures = [dict([(word, True) for word in posWords]), '+']
 				trainData.append(posFeatures)
 
 		with open("neg.txt", "r") as neg:
 			for word in neg:
 				negWords = re.findall(r"[\w']+|[.,!?;]", word.rstrip())
-				negFeatures = [dict([(word, True) for word in negWords]), 'neg']
+				negFeatures = [dict([(word, True) for word in negWords]), '-']
 				trainData.append(negFeatures)
 
 		return trainData
@@ -55,7 +55,7 @@ class DrunkUncle:
 				if m is not None:
 					wordSet[m.group("word")] = int(m.group("score"))
 					for i in range(abs(int(m.group("score")))):
-						trainData.append([dict([(m.group("word"), True)]), 'pos' if m.group("score") > 0 else 'neg'])
+						trainData.append([dict([(m.group("word"), True)]), '+' if m.group("score") > 0 else '-'])
 
 		return trainData
 
@@ -63,7 +63,7 @@ class DrunkUncle:
 		trainingData = []
 		for dataFile in os.listdir("convote_v1.1/data_stage_three/training_set"):
 			with open('convote_v1.1/data_stage_three/training_set/' + dataFile, "r") as speech:
-				opinion = 'pos' if os.path.splitext(dataFile)[0][-1].lower() == 'y' else 'neg'
+				opinion = '+' if os.path.splitext(dataFile)[0][-1].lower() == 'y' else '-'
 				for word in speech:
 					words = re.findall(r"[\w']+|[.,!?;]", word.rstrip())
 					speechFeatures = [dict([(word, True) for word in words]), opinion]
@@ -76,5 +76,5 @@ class DrunkUncle:
 		textKeys = text.split(" ")
 		words = dict(map(lambda word: (word, True), textKeys))
 		result = self.classifier.prob_classify(words)
-		return (result.prob("pos"), result.prob("neg"))
+		return result.max() + str(result.prob(result.max()))
 
