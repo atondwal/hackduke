@@ -2,6 +2,7 @@ from flask import Flask, request, redirect
 import twilio.twiml as twiml
 from twilio.rest import TwilioRestClient
 import sendgrid
+import drunkuncle
 import re, uuid, os, sys, subprocess
 
 app = Flask(__name__)
@@ -65,13 +66,16 @@ def twilio():
     return str(resp)
 
 
+app.config['parser'] = drunkuncle.DrunkUncle()
+
 def parse(text):
-    # TODO you know, parse the text
+    parsed = app.config['parser'].getSentiment(text)
     filename = text2mp3(uuid.uuid1().hex + ".mp3", text)
     return (filename, text)
 
 def text2mp3(filename, text):
     pipe = subprocess.Popen(['./text2mp3.zsh',filename],stdin=subprocess.PIPE)
+    print("Turning text to mp3:\n%s"%text)
     pipe.communicate(text)
     return filename
 
