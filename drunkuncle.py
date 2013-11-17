@@ -18,6 +18,11 @@ class DrunkUncle:
 		#trainers += self.congressTrain()
 		#print trainers
 		#self.classifier = NaiveBayesClassifier.train(trainers)
+                #trainers = self.movieTrain()
+                #trainers += self.afinnTrain()
+                #trainers += self.congressTrain()
+		#print trainers
+                #self.classifier = NaiveBayesClassifier.train(trainers)
 
 	def keyExtract(self, text):
 		text = str(text)
