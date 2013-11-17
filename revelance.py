@@ -31,3 +31,4 @@ def revelance(keywords, text):
 			index = text.find(word, index+1)
 		# check wikipedia	
 		wc += wiki_count(word, base_url + word)
+	return wc
