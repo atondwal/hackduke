@@ -1,4 +1,5 @@
-.py?
+*.py?
 build
 build/**/*
 *.swp
+test.*
